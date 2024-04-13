@@ -1,0 +1,38 @@
+-- Get the player and character
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Create variables for fly speed and fly state
+local flySpeed = 50
+local isFlying = false
+
+-- Function to toggle fly mode
+local function toggleFly()
+    isFlying = not isFlying
+    if isFlying then
+        character:FindFirstChildOfClass("Humanoid").PlatformStand = true
+    else
+        character:FindFirstChildOfClass("Humanoid").PlatformStand = false
+    end
+end
+
+-- Bind the fly toggle function to a key
+game:GetService("UserInputService").InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.F and not isFlying then
+        toggleFly()
+    end
+end)
+
+-- Function to handle flying movement
+game:GetService("RunService").RenderStepped:Connect(function()
+    if isFlying then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+        
+        -- Apply flying movement based on input
+        local flyDirection = (player:GetMouse().Hit.p - rootPart.Position).unit
+        rootPart.Velocity = flyDirection * flySpeed
+    end
+end)
